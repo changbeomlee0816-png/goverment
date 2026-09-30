@@ -121,21 +121,30 @@ st.subheader("서류 보관함")
 today = date.today()
 docs = [{"id": d.id, "서류": d.doc_type, "발급일": d.issued_date, "만료일": d.expires_date,
          "상태": ("만료" if d.expires_date and d.expires_date < today else f"D-{(d.expires_date - today).days}" if d.expires_date else "-"),
-         "파일": d.file_path or ""} for d in c.documents]
+         "파일": d.file_name or (Path(d.file_path).name if d.file_path else "")} for d in c.documents]
 st.dataframe(pd.DataFrame(docs), hide_index=True, width="stretch")
 with st.form("doc"):
     col1, col2, col3 = st.columns(3)
     doc_type = col1.selectbox("서류 종류", DOC_TYPES)
     issued = col2.date_input("발급일", today)
     expires = col3.date_input("만료일(없으면 비움)", None)
-    f = st.file_uploader("파일(선택)")
+    f = st.file_uploader("파일(선택, 10MB 이하 — DB에 함께 저장)")
     if st.form_submit_button("서류 추가"):
+        if f and f.size > 10 * 1024 * 1024:
+            st.error("10MB 이하 파일만 보관할 수 있습니다.")
+            st.stop()
         path = str(save_upload(f.name, f.getvalue(), subdir="documents")) if f else None
         with session_scope() as w:
-            w.add(Document(company_id=c.id, doc_type=doc_type, issued_date=issued, expires_date=expires, file_path=path))
+            w.add(Document(company_id=c.id, doc_type=doc_type, issued_date=issued, expires_date=expires, file_path=path,
+                           file_name=f.name if f else None, file_data=f.getvalue() if f else None))
         st.rerun()
-del_id = st.selectbox("삭제할 서류", [None] + [d["id"] for d in docs], format_func=lambda i: "-" if i is None else next(d["서류"] for d in docs if d["id"] == i))
-if del_id and st.button("서류 삭제"):
-    with session_scope() as w:
-        w.delete(w.get(Document, del_id))
-    st.rerun()
+sel_id = st.selectbox("선택한 서류", [None] + [d["id"] for d in docs], format_func=lambda i: "-" if i is None else next(f"{d['서류']} {d['파일']}" for d in docs if d["id"] == i))
+if sel_id:
+    col1, col2 = st.columns(2)
+    doc = s.get(Document, sel_id)
+    if doc.file_data:
+        col1.download_button("파일 다운로드", doc.file_data, doc.file_name or "document")
+    if col2.button("서류 삭제"):
+        with session_scope() as w:
+            w.delete(w.get(Document, sel_id))
+        st.rerun()

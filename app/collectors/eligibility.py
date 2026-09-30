@@ -108,7 +108,7 @@ def extract_for_announcement(session: Session, ann: Announcement, use_llm: bool 
         )
     if meta:
         if meta.get("category"):
-            ann.category = meta["category"]
+            ann.category = str(meta["category"])[:40]
         if meta.get("is_rnd") is not None:
             ann.is_rnd = bool(meta["is_rnd"])
         if meta.get("support_amount_krw"):

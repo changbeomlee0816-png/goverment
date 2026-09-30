@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from sqlalchemy import JSON, Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, BigInteger, Boolean, Date, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -24,14 +24,14 @@ class Company(Base):
     region_sigungu: Mapped[str | None] = mapped_column(String(40))
     industry_code: Mapped[str | None] = mapped_column(String(20))
     industry_name: Mapped[str | None] = mapped_column(String(100))
-    revenue_last_year: Mapped[int | None] = mapped_column(Integer)  # 원
+    revenue_last_year: Mapped[int | None] = mapped_column(BigInteger)  # 원
     employees: Mapped[int | None] = mapped_column(Integer)
     rnd_staff: Mapped[int | None] = mapped_column(Integer)
     rnd_ratio: Mapped[float | None] = mapped_column(Float)  # 매출 대비 연구개발비 비율(%)
     has_rnd_lab: Mapped[bool] = mapped_column(Boolean, default=False)
     certifications: Mapped[list] = mapped_column(JSON, default=list)  # 벤처/이노비즈/메인비즈/여성기업...
     ceo_attributes: Mapped[list] = mapped_column(JSON, default=list)  # 여성/청년...
-    export_amount: Mapped[int | None] = mapped_column(Integer)
+    export_amount: Mapped[int | None] = mapped_column(BigInteger)
     patents: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
@@ -63,7 +63,7 @@ class Item(Base):
     trl_current: Mapped[int | None] = mapped_column(Integer)
     trl_target: Mapped[int | None] = mapped_column(Integer)
     dev_period_months: Mapped[int | None] = mapped_column(Integer)
-    budget_krw: Mapped[int | None] = mapped_column(Integer)
+    budget_krw: Mapped[int | None] = mapped_column(BigInteger)
     staff_count: Mapped[int | None] = mapped_column(Integer)
     scope: Mapped[str | None] = mapped_column(Text)
     priority: Mapped[int] = mapped_column(Integer, default=3)
@@ -127,7 +127,7 @@ class Announcement(Base):
     apply_start: Mapped[date | None] = mapped_column(Date)
     apply_end: Mapped[date | None] = mapped_column(Date)
     budget_text: Mapped[str | None] = mapped_column(Text)
-    support_amount_krw: Mapped[int | None] = mapped_column(Integer)  # 과제당 최대 지원금(추출 시)
+    support_amount_krw: Mapped[int | None] = mapped_column(BigInteger)  # 과제당 최대 지원금(추출 시)
     eligibility_text: Mapped[str | None] = mapped_column(Text)
     summary: Mapped[str | None] = mapped_column(Text)
     region: Mapped[str | None] = mapped_column(String(100))
@@ -215,6 +215,8 @@ class Document(Base):
     company_id: Mapped[int] = mapped_column(ForeignKey("company.id"))
     doc_type: Mapped[str] = mapped_column(String(50))
     file_path: Mapped[str | None] = mapped_column(String(1000))
+    file_name: Mapped[str | None] = mapped_column(String(300))
+    file_data: Mapped[bytes | None] = mapped_column(LargeBinary, deferred=True)  # 외부 DB 배포 시 파일 영구 보관
     issued_date: Mapped[date | None] = mapped_column(Date)
     expires_date: Mapped[date | None] = mapped_column(Date)
 

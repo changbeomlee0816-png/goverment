@@ -19,7 +19,7 @@ streamlit run app/ui/Home.py    # http://localhost:8501
 
 | .env 키 | 용도 | 발급처 |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | AI 양식 구조화·인터뷰·초안·가상 채점·자격요건 추출 | console.anthropic.com |
+| `ANTHROPIC_API_KEY` | AI 양식 구조화·인터뷰·초안·가상 채점·자격요건 추출 | platform.claude.com |
 | `BIZINFO_API_KEY` | 기업마당 공고 수집 | 기업마당 > 활용정보 > 정책정보 개방 |
 | `DATA_GO_KR_KEY` | K-Startup 공고 수집 | 공공데이터포털 15125364 활용신청 |
 | `NTIS_API_KEY` | 국가R&D 유사과제 검색(참고용) | NTIS 회원정보 소속기관 등록 후 신청 |
@@ -38,12 +38,36 @@ streamlit run app/ui/Home.py    # http://localhost:8501
    BIZINFO_API_KEY = ""
    DATA_GO_KR_KEY = ""
    NTIS_API_KEY = ""
-   # DATABASE_URL = "postgresql+psycopg://..."   # 데이터를 영구 보관하려면 외부 DB
+   DATABASE_URL = ""   # 아래 '외부 DB 연결' 참고 (비우면 재시작 시 데이터 초기화)
    ```
 4. **Deploy**를 누르면 `https://<앱이름>.streamlit.app` 주소가 생깁니다.
 5. 처음 접속하면 홈 화면의 **샘플 데이터 불러오기**로 기능을 둘러볼 수 있습니다.
 
-> ⚠️ Streamlit Cloud는 앱이 재시작되면 로컬 파일(SQLite `data/app.db`, 업로드 파일)이 초기화됩니다. 실제 업무 데이터를 보관하려면 `DATABASE_URL`에 PostgreSQL 같은 외부 DB를 지정하세요(psycopg 패키지 추가 필요). 아니면 사내 PC나 서버에서 `streamlit run`으로 운영하세요.
+> ⚠️ Streamlit Cloud는 앱이 재시작되면 로컬 파일이 초기화됩니다. 실제 업무 데이터는 아래처럼 외부 DB(Supabase)에 보관하세요.
+
+### 외부 DB 연결 (Supabase 무료 PostgreSQL)
+1. https://supabase.com/dashboard/projects 에서 **New project**를 만듭니다. Region은 `Northeast Asia (Seoul)`, DB 비밀번호는 따로 기록해 둡니다.
+2. 프로젝트 상단의 **Connect** 버튼을 누르고 **Session pooler** 연결 문자열을 복사합니다.
+   - Streamlit Cloud는 IPv4만 지원하므로 Direct connection이 아니라 **Session pooler**를 써야 합니다.
+3. Secrets에 `DATABASE_URL`로 넣고 `[YOUR-PASSWORD]` 부분을 DB 비밀번호로 바꿉니다.
+   ```toml
+   DATABASE_URL = "postgresql://postgres.xxxxxxxx:비밀번호@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres"
+   ```
+   - 비밀번호에 `@ : / ? #` 같은 특수문자가 있으면 URL 인코딩하세요(예: `@` → `%40`).
+4. 앱이 처음 접속될 때 테이블을 자동으로 만듭니다.
+   - SSL은 자동 적용됩니다.
+   - 모델에 새 컬럼이 생기면 다음 실행 때 자동으로 추가됩니다.
+
+외부 DB를 쓰면 기업정보, 공고, 신청, 계획서 초안뿐 아니라 **서류 보관함 파일(10MB 이하)**도 DB에 저장되어 재시작 후에도 유지됩니다.
+공고 원본 스냅샷(`data/snapshots/`)은 로컬 파일이므로 Cloud에서는 재시작 시 사라지지만, 수집된 공고 데이터 자체는 DB에 남습니다.
+
+### API 키 발급 링크
+| 키 | 발급 페이지 | 비고 |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | https://platform.claude.com/settings/keys | 결제수단 등록 필요 |
+| `BIZINFO_API_KEY` | https://www.bizinfo.go.kr/apiList.do | "지원사업정보 API" 활용 신청 → 인증키 발급 |
+| `DATA_GO_KR_KEY` | https://www.data.go.kr/data/15125364/openapi.do | 로그인 → 활용신청(자동승인) → 마이페이지의 **일반 인증키(Decoding)** |
+| `NTIS_API_KEY` | https://www.ntis.go.kr/rndopen/api/mng/apiMain.do | 회원정보에 소속기관 등록 후 신청(선택) |
 > 서버 상주 스케줄러(`--schedule`)는 Cloud에서 돌릴 수 없습니다. 대신 앱을 열 때 수집 주기가 지났으면 자동으로 수집합니다.
 
 ## 공고 자동 업데이트
