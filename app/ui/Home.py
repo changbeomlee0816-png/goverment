@@ -30,6 +30,16 @@ if cfg.get("auto_on_open", True) and stale and has_key and not st.session_state.
         results = collect_once(extract=False)
     st.toast(" / ".join(f"{r['source']}: 신규 {r['created']}건" if r["ok"] else f"{r['source']}: 실패" for r in results))
 
+if not s.scalar(select(func.count(Company.id))):
+    st.info("등록된 기업이 없습니다. [기업정보]에서 등록하거나, 샘플 데이터로 먼저 둘러보세요.")
+    if st.button("샘플 데이터 불러오기(에너지 관리 솔루션 기업·공고 3건)"):
+        from app.db.seed import seed
+        from app.db.session import session_scope
+
+        with session_scope() as w:
+            seed(w)
+        st.rerun()
+
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("등록 기업", s.scalar(select(func.count(Company.id))))
 c2.metric("수집 공고", s.scalar(select(func.count(Announcement.id))))

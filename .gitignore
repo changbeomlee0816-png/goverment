@@ -11,3 +11,4 @@ data/exports/*
 data/snapshots/*
 !data/snapshots/.gitkeep
 .venv/
+.streamlit/secrets.toml

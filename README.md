@@ -24,6 +24,28 @@ streamlit run app/ui/Home.py    # http://localhost:8501
 | `DATA_GO_KR_KEY` | K-Startup 공고 수집 | 공공데이터포털 15125364 활용신청 |
 | `NTIS_API_KEY` | 국가R&D 유사과제 검색(참고용) | NTIS 회원정보 소속기관 등록 후 신청 |
 
+## 웹 배포 (Streamlit Community Cloud, 무료)
+
+1. https://share.streamlit.io 에 GitHub 계정으로 로그인합니다.
+2. **Create app → Deploy a public app from GitHub**를 선택하고 다음과 같이 입력합니다.
+   - Repository: `changbeomlee0816-png/goverment`
+   - Branch: `claude/tender-ramanujan-w0ioh1` (main에 병합했다면 `main`)
+   - Main file path: `app/ui/Home.py`
+3. **Advanced settings → Secrets**에 아래 내용을 붙여 넣습니다. 값은 필요한 것만 넣으면 됩니다.
+   ```toml
+   APP_PASSWORD = "사내 접속 비밀번호"   # 꼭 설정하세요. 설정하면 접속 시 비밀번호를 묻습니다
+   ANTHROPIC_API_KEY = ""
+   BIZINFO_API_KEY = ""
+   DATA_GO_KR_KEY = ""
+   NTIS_API_KEY = ""
+   # DATABASE_URL = "postgresql+psycopg://..."   # 데이터를 영구 보관하려면 외부 DB
+   ```
+4. **Deploy**를 누르면 `https://<앱이름>.streamlit.app` 주소가 생깁니다.
+5. 처음 접속하면 홈 화면의 **샘플 데이터 불러오기**로 기능을 둘러볼 수 있습니다.
+
+> ⚠️ Streamlit Cloud는 앱이 재시작되면 로컬 파일(SQLite `data/app.db`, 업로드 파일)이 초기화됩니다. 실제 업무 데이터를 보관하려면 `DATABASE_URL`에 PostgreSQL 같은 외부 DB를 지정하세요(psycopg 패키지 추가 필요). 아니면 사내 PC나 서버에서 `streamlit run`으로 운영하세요.
+> 서버 상주 스케줄러(`--schedule`)는 Cloud에서 돌릴 수 없습니다. 대신 앱을 열 때 수집 주기가 지났으면 자동으로 수집합니다.
+
 ## 공고 자동 업데이트
 
 공고는 세 가지 방법으로 갱신됩니다. 주기는 [설정] 화면에서 바꿀 수 있고 기본값은 24시간입니다.

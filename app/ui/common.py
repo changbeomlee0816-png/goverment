@@ -1,6 +1,8 @@
 """Streamlit 공통 유틸."""
 from __future__ import annotations
 
+import hmac
+import os
 import sys
 from pathlib import Path
 
@@ -18,11 +20,39 @@ from app.llm import claude_client  # noqa: E402
 ACCENT = "#1f5fbf"
 
 
+def load_cloud_secrets() -> None:
+    """Streamlit Cloud의 Secrets(st.secrets) 최상위 값을 환경변수로 옮긴다(.env와 같은 방식으로 읽도록)."""
+    try:
+        items = dict(st.secrets)
+    except Exception:  # noqa: BLE001 - secrets.toml이 없으면 .env만 사용
+        return
+    for key, value in items.items():
+        if isinstance(value, (str, int, float, bool)) and not os.environ.get(key):
+            os.environ[key] = str(value)
+
+
+def require_password() -> None:
+    """APP_PASSWORD가 설정돼 있으면 접속 비밀번호를 요구한다(공개 URL 배포 시 사내 정보 보호)."""
+    expected = os.environ.get("APP_PASSWORD", "")
+    if not expected or st.session_state.get("_authed"):
+        return
+    st.title("정부지원사업 도우미")
+    pw = st.text_input("접속 비밀번호", type="password")
+    if pw:
+        if hmac.compare_digest(pw, expected):
+            st.session_state["_authed"] = True
+            st.rerun()
+        st.error("비밀번호가 올바르지 않습니다.")
+    st.stop()
+
+
 def setup(title: str, icon: str = "📋") -> None:
     old = st.session_state.pop("_db", None)
     if old is not None:
         old.close()  # 이전 실행의 조회 세션 연결 반환
     st.set_page_config(page_title=f"{title} · 지원사업 도우미", page_icon=icon, layout="wide")
+    load_cloud_secrets()
+    require_password()
     st.markdown(
         f"""<style>
         .badge-check {{background:#fff3b0;color:#6b5500;padding:1px 6px;border-radius:4px;font-size:0.8em;}}
