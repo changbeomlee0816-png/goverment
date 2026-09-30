@@ -1,0 +1,29 @@
+{
+  "name": "기본 R&D 사업계획서 (교육 기준 표준 구성)",
+  "year": 2026,
+  "version": "default-v1",
+  "sections": [
+    {"key": "s1", "title": "1. 기술개발 목표 - 개요", "level": 2, "eval_item": "e1", "max_score": 25, "page_limit": null, "sample": "",
+     "instructions": ["※ 개발기술의 개요를 기술 트렌드와 연계하여 작성하고 개념도(도식)를 제시", "※ 개발 대상 기술·제품의 정의와 구성"]},
+    {"key": "s2", "title": "2. 기술개발 목표 - 필요성", "level": 2, "eval_item": "e1", "max_score": 25, "page_limit": null, "sample": "",
+     "instructions": ["※ 해결하고자 하는 문제와 그로 인한 사회적 비용을 통계(출처 명시)로 제시", "※ 기존 기술·제품의 한계"]},
+    {"key": "s3", "title": "3. 기술개발 목표 - 최종목표 및 성능지표", "level": 2, "eval_item": "e1", "max_score": 25, "page_limit": null, "sample": "",
+     "instructions": ["※ 최종 목표를 세분화된 정량 성능지표(단위, 현재 수준, 목표, 측정방법, 공인시험기관)로 제시", "※ 목표 TRL 명시"]},
+    {"key": "s4", "title": "4. 기술개발 목표 - 파급효과", "level": 2, "eval_item": "e4", "max_score": 30, "page_limit": null, "sample": "",
+     "instructions": ["※ Value Chain(원료-생산-유통-수요) 관점의 기술적·경제적·사회적 파급효과를 정량적으로 제시"]},
+    {"key": "s5", "title": "5. 연구개발 방법 - 추진절차 및 업무분담", "level": 2, "eval_item": "e2", "max_score": 25, "page_limit": null, "sample": "",
+     "instructions": ["※ TRL 기준 3단계 내외 추진절차(단계별 기간·수행주체) 제시", "※ 참여기관·인력별 업무분담 총괄표"]},
+    {"key": "s6", "title": "6. 연구개발 방법 - 절차별 수행방법", "level": 2, "eval_item": "e2", "max_score": 25, "page_limit": null, "sample": "",
+     "instructions": ["※ 절차별 방법·도구·산출물을 제시하고 성능지표와 연계", "※ 연구윤리 및 연구실 안전 확보 방안"]},
+    {"key": "s7", "title": "7. 선행연구개발 실적 및 차별성", "level": 2, "eval_item": "e3", "max_score": 20, "page_limit": null, "sample": "",
+     "instructions": ["※ 선행연구 이력표(과제명, 기간, 결과, 지재권)", "※ 선행연구 대비 본 과제의 차별성과 활용계획(정량 효과)", "※ 지식재산권 회피·확보 전략, 기술유출 방지 대책"]},
+    {"key": "s8", "title": "8. 사업화 계획", "level": 2, "eval_item": "e4", "max_score": 30, "page_limit": null, "sample": "",
+     "instructions": ["※ 기술수명주기상 위치, 목표시장 규모(TAM-SAM-SOM, 출처 명시)", "※ 5개년 매출 계획표(A=B+D, C=B/A×100)", "※ 판매처·구매의향, SWOT→STP 전략, 해외진출 및 후속투자 계획"]}
+  ],
+  "eval_items": [
+    {"key": "e1", "name": "기술개발 목표의 명확성·필요성", "max_score": 25, "criteria": "목표의 구체성, 정량 성능지표의 적정성, 개발 필요성"},
+    {"key": "e2", "name": "기술개발 방법의 적정성", "max_score": 25, "criteria": "추진체계·일정·방법의 구체성과 실현가능성"},
+    {"key": "e3", "name": "수행역량 및 선행연구", "max_score": 20, "criteria": "선행연구 실적, 인력·인프라, 차별성"},
+    {"key": "e4", "name": "사업화 계획 및 파급효과", "max_score": 30, "criteria": "시장 분석, 매출 계획의 타당성, 파급효과"}
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "matching": {
+    "weights": {
+      "purpose": 30,
+      "trl": 20,
+      "scale": 15,
+      "capability": 20,
+      "bonus": 15
+    },
+    "llm_reason_top_n": 10
+  },
+  "collect": {
+    "interval_hours": 24,
+    "sources": [
+      "bizinfo",
+      "kstartup"
+    ],
+    "bizinfo": {
+      "searchCnt": 100,
+      "hashtags": ""
+    },
+    "kstartup": {
+      "perPage": 100,
+      "pages": 2
+    },
+    "auto_on_open": true
+  },
+  "interest": {
+    "regions": [],
+    "hashtags": []
+  },
+  "alerts": {
+    "deadline_days": [
+      14,
+      7,
+      3
+    ],
+    "document_expiry_days": 30,
+    "recipients": []
+  },
+  "llm": {
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "use_fallbacks": true
+  }
+}
