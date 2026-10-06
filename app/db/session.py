@@ -80,3 +80,48 @@ def session_scope(url: str | None = None):
         raise
     finally:
         session.close()
+
+
+def describe_url(url: str) -> dict:
+    """접속 정보 요약(비밀번호 제외)."""
+    from sqlalchemy.engine import make_url
+
+    try:
+        u = make_url(normalize_url(url))
+    except Exception:  # noqa: BLE001
+        return {"형식": "해석 불가"}
+    return {"드라이버": u.drivername, "사용자": u.username, "호스트": u.host, "포트": u.port, "DB": u.database}
+
+
+def diagnose_url(url: str) -> list[str]:
+    """DATABASE_URL에서 흔한 설정 실수를 찾는다(Supabase 기준)."""
+    hints = []
+    if not url:
+        return hints
+    if "[YOUR-PASSWORD]" in url or "YOUR-PASSWORD" in url:
+        hints.append("주소에 [YOUR-PASSWORD]가 그대로 있습니다. 대괄호까지 지우고 실제 DB 비밀번호를 넣으세요.")
+    info = describe_url(url)
+    host, port, user = info.get("호스트") or "", info.get("포트"), info.get("사용자") or ""
+    if host.startswith("db.") and host.endswith(".supabase.co"):
+        hints.append("Direct connection 주소(db.xxx.supabase.co)입니다. Streamlit Cloud는 IPv4만 지원하므로 Connect → Session pooler 주소를 쓰세요.")
+    if "pooler.supabase.com" in host:
+        if port == 6543:
+            hints.append("포트 6543은 Transaction pooler입니다. Session pooler(포트 5432) 주소를 쓰세요.")
+        if "." not in user:
+            hints.append("pooler 주소의 사용자명은 'postgres.<프로젝트ID>' 형식이어야 합니다.")
+    if url.count("@") > 1:
+        hints.append("주소에 '@'가 두 번 이상 있습니다. 비밀번호 안의 '@'는 %40으로 바꿔 쓰세요.")
+    return hints
+
+
+def redact(text_: str, url: str) -> str:
+    """오류 메시지에서 비밀번호를 가린다."""
+    from sqlalchemy.engine import make_url
+
+    try:
+        pw = make_url(normalize_url(url)).password
+    except Exception:  # noqa: BLE001
+        pw = None
+    if pw:
+        text_ = text_.replace(pw, "****")
+    return text_

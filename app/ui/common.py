@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
 
 import streamlit as st  # noqa: E402
 from sqlalchemy import select  # noqa: E402
+from sqlalchemy.exc import OperationalError  # noqa: E402
 
 from app.db.models import Company, Item  # noqa: E402
 from app.db.session import make_session_factory, session_scope  # noqa: E402,F401
@@ -67,8 +68,28 @@ def setup(title: str, icon: str = "📋") -> None:
 def db():
     """실행(rerun)마다 하나씩 쓰는 조회용 세션. 변경은 session_scope() 사용."""
     if "_db" not in st.session_state:
-        st.session_state["_db"] = make_session_factory()()
+        try:
+            st.session_state["_db"] = make_session_factory()()
+        except OperationalError as exc:
+            show_db_error(exc)
     return st.session_state["_db"]
+
+
+def show_db_error(exc: Exception) -> None:
+    """DB 접속 실패 원인을 비밀번호를 가린 채 보여주고 실행을 멈춘다."""
+    from app.config import database_url
+    from app.db.session import describe_url, diagnose_url, redact
+
+    url = database_url()
+    st.error("데이터베이스에 접속하지 못했습니다. Streamlit Secrets의 DATABASE_URL을 확인하세요.")
+    for hint in diagnose_url(url):
+        st.warning(hint)
+    st.markdown("**접속 정보(비밀번호 제외)**")
+    st.json(describe_url(url))
+    st.markdown("**원인 메시지**")
+    st.code(redact(str(getattr(exc, "orig", exc)), url), language=None)
+    st.caption("자주 있는 원인: 비밀번호 오타 · Session pooler가 아닌 주소 · 호스트의 aws-0/aws-1 차이 · 비밀번호 특수문자(@ → %40)")
+    st.stop()
 
 
 def need_check(text: str = "확인 필요") -> str:
