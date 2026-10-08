@@ -1,7 +1,7 @@
-# 워드 → 한글 변환기
+# 워드·PDF → 한글 변환기
 
-워드 문서(.docx)를 올리면 한/글 문서(.hwpx 또는 .hwp)로 바꿔 주는 단독 웹앱입니다.
-DB, API 키, 비밀번호가 필요 없습니다. 변환 코드는 `app/docs/docx_to_hwp.py`를 함께 씁니다.
+워드(.docx)나 PDF를 올리면 한/글 문서(.hwpx 또는 .hwp)로 바꿔 주는 단독 웹앱입니다.
+DB, API 키, 비밀번호가 필요 없습니다. 변환 코드는 `app/docs/docx_to_hwp.py`, `app/docs/pdf_to_hwp.py`를 함께 씁니다.
 
 ## 웹에 올리기 (Streamlit Community Cloud, 무료)
 1. https://share.streamlit.io 에 GitHub 계정으로 로그인합니다.
